@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const playlistSchema = new mongoose.Schema({
   name: {
@@ -9,15 +9,22 @@ const playlistSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
-  songs: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Song'
-  }],
+  songs: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Song",
+    },
+  ],
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     default: null,
+  },
+  sharedWith: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
   },
 });
 
-export default mongoose.model('Playlist', playlistSchema);
+export default mongoose.model("Playlist", playlistSchema);
