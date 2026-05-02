@@ -20,11 +20,12 @@ const playlistSchema = new mongoose.Schema({
     ref: "User",
     default: null,
   },
-  sharedWith: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
+  sharedWith: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
 });
 
 export default mongoose.model("Playlist", playlistSchema);
