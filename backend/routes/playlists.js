@@ -1,7 +1,10 @@
 import { Router } from "express";
 import Playlist from "../models/Playlist.js";
 import { requireAuth } from "../middleware/auth.js";
-import { isPlaylistOwner } from "../middleware/ownership.js";
+import {
+  isPlaylistOwner,
+  isPlaylistSharedWithUser,
+} from "../middleware/ownership.js";
 import User from "../models/User.js";
 
 const router = Router();
@@ -19,7 +22,6 @@ router.get("/latest", async (req, res) => {
   }
 });
 
-
 router.get("/my", requireAuth, async (req, res) => {
   try {
     const playlists = await Playlist.find({ user: req.user._id })
@@ -31,6 +33,40 @@ router.get("/my", requireAuth, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+router.get("/shared-with-me", requireAuth, async (req, res) => {
+  try {
+    const playlists = await Playlist.find({ sharedWith: req.user._id })
+      .populate("songs", "title artist durationSeconds")
+      .populate("user", "email")
+      .populate("sharedWith", "email");
+    res.json(playlists);
+  } catch (err) {
+    console.error("Failed to get shared playlists:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get(
+  "/shared/:id",
+  requireAuth,
+  isPlaylistSharedWithUser,
+  async (req, res) => {
+    try {
+      const playlist = await Playlist.findOne({
+        _id: req.params.id,
+        sharedWith: req.user._id,
+      })
+        .populate("songs", "title artist durationSeconds")
+        .populate("user", "email")
+        .populate("sharedWith", "email");
+      res.json(playlists);
+    } catch (err) {
+      console.error("Failed to get shakred playlist:", err.message);
+      res.status(500).json({ error: err.message });
+    }
+  },
+);
 
 router.get("/", async (req, res) => {
   try {
@@ -123,19 +159,6 @@ router.post("/my/:id/share", requireAuth, isPlaylistOwner, async (req, res) => {
     res.json(playlist);
   } catch (err) {
     console.error("Failed to share playlist:", err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-router.get("/shared-with-me", requireAuth, async (req, res) => {
-  try {
-    const playlists = await Playlist.find({ sharedWith: req.user._id })
-      .populate("songs", "title artist durationSeconds")
-      .populate("user", "email")
-      .populate("sharedWith", "email");
-    res.json(playlists);
-  } catch (err) {
-    console.error("Failed to get shared playlists:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
