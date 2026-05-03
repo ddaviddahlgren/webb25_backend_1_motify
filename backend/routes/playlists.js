@@ -40,6 +40,7 @@ router.get("/shared-with-me", requireAuth, async (req, res) => {
       .populate("songs", "title artist durationSeconds")
       .populate("user", "email")
       .populate("sharedWith", "email");
+
     res.json(playlists);
   } catch (err) {
     console.error("Failed to get shared playlists:", err.message);
@@ -60,7 +61,7 @@ router.get(
         .populate("songs", "title artist durationSeconds")
         .populate("user", "email")
         .populate("sharedWith", "email");
-      res.json(playlists);
+      res.json(playlist);
     } catch (err) {
       console.error("Failed to get shakred playlist:", err.message);
       res.status(500).json({ error: err.message });
